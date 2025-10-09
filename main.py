@@ -1,3 +1,16 @@
+from run_dna_rna_module import reverse
+from run_dna_rna_module import is_nucleic_acid
+from run_dna_rna_module import transcribe
+from run_dna_rna_module import complement
+from run_dna_rna_module import reverse_complement
+from filter_fastq_module import calc_gc_content
+from filter_fastq_module import check_gc_bounds
+from filter_fastq_module import check_length_bounds
+from filter_fastq_module import mean_phred33
+from filter_fastq_module import check_quality
+from filter_fastq_module import is_standard_sequence
+
+
 def run_dna_rna_tools(*args):
     """
     Проверка, транскрипция, разворот или комплементарный перевод генетических последовательностей
