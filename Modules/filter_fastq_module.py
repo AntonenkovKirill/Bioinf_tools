@@ -1,3 +1,5 @@
+import os
+
 def calc_gc_content(seq: str) -> float:
     """
     Расчет процента GC для ридов
@@ -89,3 +91,33 @@ def is_standard_sequence(seq: str) -> bool:
     """
     valid_bases = set('ATGCatgc')
     return all(base in valid_bases for base in seq)
+
+def read_fastq(path: str) -> dict:
+    """
+    Read FASTQ-file and transform it into dict {name: (sequence, quality)}.
+    """
+    result = {}
+    with open(path, "r") as fin:
+        while True:
+            name_line = fin.readline()
+            if not name_line:
+                break
+            seq_line = fin.readline().strip()
+            plus_line = fin.readline()
+            qual_line = fin.readline().strip()
+            name = name_line.strip()[1:]
+            result[name] = (seq_line, qual_line)
+    return result
+
+def write_fastq(seqs: dict, output_fastq: str):
+    """
+    Write dict of reads into FASTQ-file.
+    Saving result into subdirectory 'filtered'. If it doesn't exist - create it.
+    """
+    out_dir = os.path.join(os.path.dirname(output_fastq), 'filtered')
+    os.makedirs(out_dir, exist_ok=True)
+    out_path = os.path.join(out_dir, os.path.basename(output_fastq))
+    with open(out_path, "w") as fout:
+        for name, (seq, qual) in seqs.items():
+            fout.write(f"@{name}\n{seq}\n+\n{qual}\n")
+
