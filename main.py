@@ -1,15 +1,17 @@
-from run_dna_rna_module import reverse
-from run_dna_rna_module import is_nucleic_acid
-from run_dna_rna_module import transcribe
-from run_dna_rna_module import complement
-from run_dna_rna_module import reverse_complement
-from filter_fastq_module import calc_gc_content
-from filter_fastq_module import check_gc_bounds
-from filter_fastq_module import check_length_bounds
-from filter_fastq_module import mean_phred33
-from filter_fastq_module import check_quality
-from filter_fastq_module import is_standard_sequence
-
+import os
+from Modules.run_dna_rna_module import reverse
+from Modules.run_dna_rna_module import is_nucleic_acid
+from Modules.run_dna_rna_module import transcribe
+from Modules.run_dna_rna_module import complement
+from Modules.run_dna_rna_module import reverse_complement
+from Modules.filter_fastq_module import calc_gc_content
+from Modules.filter_fastq_module import check_gc_bounds
+from Modules.filter_fastq_module import check_length_bounds
+from Modules.filter_fastq_module import mean_phred33
+from Modules.filter_fastq_module import check_quality
+from Modules.filter_fastq_module import is_standard_sequence
+from Modules.filter_fastq_module import read_fastq
+from Modules.filter_fastq_module import write_fastq
 
 def run_dna_rna_tools(*args):
     """
@@ -50,17 +52,21 @@ def run_dna_rna_tools(*args):
 
 
 def filter_fastq(
-    seqs: dict,
+    input_fastq: str,
+    output_fastq: str,
     gc_bounds=(0, 100),
     length_bounds=(0, 2 ** 32),
     quality_threshold=0
 ) -> dict:
     """
-    Фильтрация fastq-ридов по GC, длине, стандартному составу и качеству.
-    На вход: seqs — словарь {name: (sequence, quality)}
+    Filtration of fastq-reads from input_fastq по GC, length, standard composition and quality.
+    Arguments:
+        input_fastq - fastq-file
+        output_fastq -
 
-    Возвращает результат фильтрации переменной seqs на основании аргументов gc_bounds, length_bounds и quality_threshold
+    Return result of filtration of fastq-reads based on variables gc_bounds, length_bounds и quality_threshold
     """
+    seqs = read_fastq(input_fastq)
     filtered = {}
     for name, (seq, qual) in seqs.items():
         if not is_standard_sequence(seq):
@@ -71,4 +77,6 @@ def filter_fastq(
             and check_quality(qual, quality_threshold)
         ):
             filtered[name] = (seq, qual)
+    write_fastq(filtered, output_fastq)
     return filtered
+
