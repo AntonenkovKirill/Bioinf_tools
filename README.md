@@ -15,71 +15,71 @@ editor_options:
     wrap: 72
 ---
 
-Данный проект содержит набор Python-скриптов и модулей для анализа и
-фильтрации генетических последовательностей, с акцентом на работу с
-ДНК/РНК и fastq-данными.
+This project contains a set of Python-scripts and modules for analysis and
+filtering of genetic sequences, with an emphasis on working with
+DNA/RNA and fastq data.
 
-## Основные функции
+## Functions
 
-**run_dna_rna_tools** — универсальная процедура для работы с
-последовательностями ДНК/РНК.
+**run_dna_rna_tools** — universal procedure for working with
+DNA/RNA sequences.
 
-**filter_fastq** — фильтрация ридов в fastq-файле по различным
-биологическим признакам.
+**filter_fastq** — filter the rows in a fastq-file by different
+biological characteristics.
 
-**convert_multiline_fasta_to_oneline** — читает поданный на вход
-fasta-файл, в котором последовательность (ДНК/РНК/белка/ … ) может быть
-разбита на несколько строк. После чего сохраняет в новый fasta-файл в
-котором каждая последовательность умещается в одну строку.
+**convert_multiline_fasta_to_oneline** — reads input
+fasta-file in which the sequence (DNA/RNA/protein) can be
+is broken up into several lines. Then saves to a new fasta-file in
+where each sequence fits into one string.
 
-**parse_blast_output** — обрабатывает аутпут из BLAST в виде txt-файла,
-для каждого запроса Query в разделе Sequences producing significant
-alignments выбирает Description из первой строки совпадений, сортирует
-названия по алфавиту и сохраняет в output_file с одним столбцом.
+**parse_blast_output** — processes the BLAST output as a txt file,
+for each query in the Sequences producing significant
+alignments selects Description from the first line of matches, sorts
+names alphabetically and saves in output_file with a single column.
 
-Проект структурирован модульно: все вспомогательные функции вынесены в
-отдельные файлы для повторного использования и удобства тестирования.
+The project is structured modularly: all supporting functions are
+separate files for reuse and ease of testing.
 
-### Структура файлов
+### Files structure
 
-**main.py** — основной скрипт, содержит главные функции и примеры их
-вызова.
+**main.py** — main script, contains the **filter_fastq_module.py** and **run_dna_rna_module.py** functions and examples of their
+call.
 
-**filter_fastq_module.py** — модуль с функциями фильтрации
-fastq-последовательностей.
+**filter_fastq_module.py** — module for filter of
+fastq-sequences.
 
-**run_dna_rna_module.py** — модуль c функциями обработки
-ДНК/РНК-последовательностей.
+**run_dna_rna_module.py** — module c processing functions
+DNA/RNA sequences.
 
-**bio_files_processor.py** — скрипт, содержащий функции
+**bio_files_processor.py** — a script containing functions
 *convert_multiline_fasta_to_oneline* и *parse_blast_output.*
 
-## Функция run_dna_rna_tools
+## run_dna_rna_tools function
 
-Позволяет работать сразу с несколькими последовательностями ДНК или РНК,
-применяя к ним одну из доступных процедур для обработки.
+Allows you to work with multiple DNA or RNA sequences at once,
+by applying one of the available processing procedures.
 
-### Основные процедуры
+### Main procedures
 
-**is_nucleic_acid** — возвращает булев результат: является ли
-последовательность валидной (только ДНК или только РНК, нельзя смешивать
-T и U).
+**is_nucleic_acid** — returns a bool result: is
+sequence a valid (DNA only or RNA only, cannot be mixed
+T and U).
 
-**transcribe** — транскрибирует ДНК в РНК (заменяет T/t на U/u).
+**transcribe** — transcribes DNA to RNA (replaces T/t with U/u).
 
-**reverse** — разворачивает последовательность.
+**reverse** — reverse the sequence.
 
-**complement** — возвращает комплементарную последовательность (сохраняя
-регистр символов).
+**complement** — returns the complementary sequence (saving
+case of symbols).
 
-**reverse_complement** — выдаёт обратную комплементарную
-последовательность.
+**reverse_complement** — returns the complementary inverse
+sequence.
 
-Аргументы: Передается любое количество строк-последовательностей,
-последним аргументом — имя процедуры. Если подана одна
-последовательность, возвращается строка; если несколько — список.
+Arguments: Any number of string sequences is passed,
+The last argument is the name of the procedure. If you submit one
+sequence, returns the string; if multiple - list.
 
-### Примеры использования
+### Usage
 
 ```         
 python 
@@ -88,44 +88,44 @@ run_dna_rna_tools('ATG', 'reverse') \# 'GTA'
 run_dna_rna_tools('ATGC', 'AGTC', 'reverse') \# ['CGTA', 'CTGA']
 ```
 
-## Функция filter_fastq
+## Function filter_fastq
 
-Фильтрует риды, содержащиеся внутри fastq-файла по заданным
-биологическим критериям: проценту GC, длине ридов и среднему качеству
+Filters the rows contained in the fastq file as specified
+biological criteria: percentage of GC, read length and mean quality
 (phred33).
 
-Аргументы:
+Arguments:
 
-**input_fastq** — fastq-файл, подаваемый на вход.
+**input_fastq** — fastq-file sent to input.
 
-**output_fastq** — fastq-файл, содержащий только те риды, которые
-удовлетворяют условиям, выраженным в виде аргументов *gc_bounds,
+**output_fastq** — a fastq-file containing only those reeds that
+satisfy conditions expressed as arguments *gc_bounds,
 length_bounds и quality_threshold*.
 
-**seqs** — словарь вида {имя: (строка последовательности, строка
-качества)}
+**seqs** — dictionary of the type {name: (sequence string, string
+quality)}
 
-**gc_bounds** — диапазон для процента GC (по-умолчанию (0, 100)). Можно
-передавать одно число — считается, что это максимум, минимум = 0.
+**gc_bounds** — range for GC percent (default (0, 100)). Can
+to pass a single number - it is considered that it is maximum, minimum = 0.
 
-**length_bounds** — диапазон длины (по-умолчанию (0, 2\*\*32)).
+**length_bounds** — length range (default (0, 2 * *32)).
 
-**quality_threshold** — порог среднего качества (по-умолчанию 0).
+**quality_threshold** — the average quality threshold (default is 0).
 
-Риды должны удовлетворять всем условиям фильтрации:
+The reads must meet all filter conditions:
 
--   Состоять только из стандартных нуклеотидных символов.
+-   Consist of standard nucleotide characters only.
 
--   GC-состав входит в диапазон.
+-   GC-composition is in range.
 
--   Длина входит в диапазон.
+-    Length is within range.
 
--   Среднее качество не ниже порога.
+-   verage quality is not lower than the threshold.
 
-Результат: Возвращается файл того же формата, что и входной, но с
-прошедшими фильтр ридами.
+Result: returns the same file format as input, but with
+by filtered ridges.
 
-Пример использования:
+### Usage
 
 ```         
 python 
@@ -139,26 +139,20 @@ quality_threshold=30
 ) 
 ```
 
-## Функция convert_multiline_fasta_to_oneline
+## Function convert_multiline_fasta_to_oneline
 
-Перевод генетических последовательностей, записанных в fasta-файле в
-многострочном виде, в однострочный.
+Translation of genetic sequences recorded in the fasta-file in multi-line format to single-line format.
 
-**input_fasta** — fasta-файл, подаваемый на вход.
+**input_fasta** — fasta-file sent to input.
 
-**output_fasta** — итоговый fasta-файл.
+**output_fasta** — Final fasta-file.
 
-Результат: Возвращается fasta-файл с теми же генетическими
-последовательностями, но записанными построчно.
+Result: returns fasta-file with same genetic
+sequences, but written in a straight line.
 
-## Функция parse_blast_output
+## Docstrings and documentation
 
-## Докстринги и документация
+All modules and scripts contain detailed annotations and documentation for
+each function describing input and output, as well as the logic. It is recommended to use the source code of the modules to get
+additional information on the implementation of each procedure.
 
-Все модули и скрипты содержат подробные аннотацию и докстринги для
-каждой функции, описывающие входные и выходные данные, а также логику
-работы. Рекомендуется обращаться к исходному коду модулей для получения
-дополнительной информации по реализации каждой процедуры.
-
-Все функции реализованы на стандартном Python и не требуют сторонние
-библиотеки.

@@ -15,12 +15,12 @@ from Modules.filter_fastq_module import write_fastq
 
 def run_dna_rna_tools(*args):
     """
-    Проверка, транскрипция, разворот или комплементарный перевод генетических последовательностей
-    Аргументы:
-    sequences / str
-    procedure / str
+    Check, transcription, reverse or complementary conversion genetic sequencing
+    Arguments:
+        sequences / str
+        procedure / str
 
-    Возвращает измененную генетическую последовательность или булевый результат выполнения процедуры is_nucleic_acid
+    Return a changed genetic sequencing or bool result of "is_nucleic_acid" function
     """
     if len(args) < 2:
         raise ValueError("Необходимо вписать хотя бы одну последовательность и процедуру")

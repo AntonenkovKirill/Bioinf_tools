@@ -2,11 +2,11 @@ import os
 
 def calc_gc_content(seq: str) -> float:
     """
-    Расчет процента GC для ридов
-    Аргумент:
-    seq: str
+    Counting GC in reads
+    Arguments:
+        seq: str
 
-    Возвращает float.
+    Return float.
     """
     seq = seq.upper()
     gc_count = seq.count('G') + seq.count('C')
@@ -19,12 +19,12 @@ def calc_gc_content(seq: str) -> float:
 
 def check_gc_bounds(seq: str, gc_bounds) -> bool:
     """
-    Проверка соответствия GC-состава границам gc_bounds (в процентах, включительно)
-    Аргументы:
-    seq: str
-    gc_bounds: int / float
+    Checking compliance of GC-composition with gc_bounds (percentage, inclusive)
+    Arguments:
+        seq: str
+        gc_bounds: int / float
 
-    Возвращает bool.
+    Return bool.
     """
     gc = calc_gc_content(seq)
     if isinstance(gc_bounds, (int, float)):
@@ -38,12 +38,12 @@ def check_gc_bounds(seq: str, gc_bounds) -> bool:
 
 def check_length_bounds(seq: str, length_bounds) -> bool:
     """
-    Проверка длины последовательности
-    Аргументы:
-    seq: str
-    length_bounds: int / float
+    Checking of sequencing length
+    Arguments:
+        seq: str
+        length_bounds: int / float
 
-    Возвращает bool.
+    Return bool.
     """
     length = len(seq)
     if isinstance(length_bounds, (int, float)):
@@ -57,11 +57,11 @@ def check_length_bounds(seq: str, length_bounds) -> bool:
 
 def mean_phred33(qual_str: str) -> float:
     """
-    Среднее качество по шкале phred33
-    Аргументы:
-    qual_str: str
+    Average quality on the phred33 scale
+    Arguments:
+        qual_str: str
 
-    Возвращает float.
+    Return float.
     """
     if not qual_str:
         return 0.0
@@ -71,26 +71,27 @@ def mean_phred33(qual_str: str) -> float:
 
 def check_quality(qual_str: str, quality_threshold) -> bool:
     """
-    Проверка среднего качества
-    Аргументы:
-    qual_str: str
-    quality_threshold: int / float
+    Checking of average quality
+    Arguments:
+        qual_str: str
+        quality_threshold: int / float
 
-    Возвращает bool.
+    Return bool.
     """
     return mean_phred33(qual_str) >= quality_threshold
 
 
 def is_standard_sequence(seq: str) -> bool:
     """
-    Проверяет, состоит ли последовательность только из стандартных символов.
-    Аргументы:
-    seq: str
+    Checks whether the sequence consists only of standard characters
+    Arguments:
+        seq: str
 
-    Возвращает bool.
+    Return bool.
     """
     valid_bases = set('ATGCatgc')
     return all(base in valid_bases for base in seq)
+
 
 def read_fastq(path: str) -> dict:
     """
@@ -108,6 +109,7 @@ def read_fastq(path: str) -> dict:
             name = name_line.strip()[1:]
             result[name] = (seq_line, qual_line)
     return result
+
 
 def write_fastq(seqs: dict, output_fastq: str):
     """
