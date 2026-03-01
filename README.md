@@ -1,7 +1,7 @@
 ---
 title: "Report Project 1"
 author: "Group #18"
-date: "2025-10-01"
+date: "2026-03-01"
 output:
   html_document:
     df_print: default
@@ -15,144 +15,143 @@ editor_options:
     wrap: 72
 ---
 
-This project contains a set of Python-scripts and modules for analysis and
-filtering of genetic sequences, with an emphasis on working with
-DNA/RNA and fastq data.
+# Bioinf_tools (HW16 – OOP Refactoring)
 
-## Functions
+This project provides tools for working with biological sequences
+(DNA, RNA, proteins) and for filtering FASTQ files.
 
-**run_dna_rna_tools** — universal procedure for working with
-DNA/RNA sequences.
+In HW16 the project was fully refactored:
 
-**filter_fastq** — filter the rows in a fastq-file by different
-biological characteristics.
+- implemented OOP architecture for biological sequences,
+- removed legacy procedural functions,
+- rewritten FASTQ filtering using Biopython,
+- removed old module-based structure (all logic now lives in `main.py`).
 
-**convert_multiline_fasta_to_oneline** — reads input
-fasta-file in which the sequence (DNA/RNA/protein) can be
-is broken up into several lines. Then saves to a new fasta-file in
-where each sequence fits into one string.
+---
 
-**parse_blast_output** — processes the BLAST output as a txt file,
-for each query in the Sequences producing significant
-alignments selects Description from the first line of matches, sorts
-names alphabetically and saves in output_file with a single column.
+# 1. OOP Biological Sequences
 
-The project is structured modularly: all supporting functions are
-separate files for reuse and ease of testing.
+## BiologicalSequence (abstract base class)
 
-### Files structure
+Provides:
 
-**main.py** — main script, contains the **filter_fastq_module.py** and **run_dna_rna_module.py** functions and examples of their
-call.
+- `len(sequence)`
+- indexing and slicing (`seq[i]`, `seq[i:j]`)
+- iteration support
+- string representation
+- alphabet validation interface (`check_alphabet()`)
 
-**filter_fastq_module.py** — module for filter of
-fastq-sequences.
+This class defines the common interface for all biological sequences.
 
-**run_dna_rna_module.py** — module c processing functions
-DNA/RNA sequences.
+---
 
-**bio_files_processor.py** — a script containing functions
-*convert_multiline_fasta_to_oneline* и *parse_blast_output.*
+## NucleicAcidSequence (abstract)
 
-## run_dna_rna_tools function
+Base class for DNA and RNA.
 
-Allows you to work with multiple DNA or RNA sequences at once,
-by applying one of the available processing procedures.
+Implements:
 
-### Main procedures
+- `complement()`
+- `reverse()`
+- `reverse_complement()`
 
-**is_nucleic_acid** — returns a bool result: is
-sequence a valid (DNA only or RNA only, cannot be mixed
-T and U).
+Polymorphism is achieved using class-level attributes:
 
-**transcribe** — transcribes DNA to RNA (replaces T/t with U/u).
+- `_alphabet`
+- `_complement_map`
 
-**reverse** — reverse the sequence.
+No conditional logic (e.g. `if DNA`) is used inside these methods.
 
-**complement** — returns the complementary sequence (saving
-case of symbols).
+Direct instantiation of `NucleicAcidSequence` is prohibited.
 
-**reverse_complement** — returns the complementary inverse
-sequence.
+---
 
-Arguments: Any number of string sequences is passed,
-The last argument is the name of the procedure. If you submit one
-sequence, returns the string; if multiple - list.
+## DNASequence
 
-### Usage
+Inherits from `NucleicAcidSequence`.
 
-```         
-python 
+Additional method:
 
-run_dna_rna_tools('ATG', 'reverse') \# 'GTA'
-run_dna_rna_tools('ATGC', 'AGTC', 'reverse') \# ['CGTA', 'CTGA']
-```
+- `transcribe()` → returns `RNASequence`
 
-## Function filter_fastq
+---
 
-Filters the rows contained in the fastq file as specified
-biological criteria: percentage of GC, read length and mean quality
-(phred33).
+## RNASequence
 
-Arguments:
+Inherits from `NucleicAcidSequence`.
 
-**input_fastq** — fastq-file sent to input.
+Uses RNA-specific alphabet and complement rules.
 
-**output_fastq** — a fastq-file containing only those reeds that
-satisfy conditions expressed as arguments *gc_bounds,
-length_bounds и quality_threshold*.
+---
 
-**seqs** — dictionary of the type {name: (sequence string, string
-quality)}
+## AminoAcidSequence
 
-**gc_bounds** — range for GC percent (default (0, 100)). Can
-to pass a single number - it is considered that it is maximum, minimum = 0.
+Represents protein sequences.
 
-**length_bounds** — length range (default (0, 2 * *32)).
+Additional method:
 
-**quality_threshold** — the average quality threshold (default is 0).
+- `aa_composition()` — returns amino acid frequency dictionary.
 
-The reads must meet all filter conditions:
+---
 
--   Consist of standard nucleotide characters only.
+# 2. FASTQ Filtering (Biopython Implementation)
 
--   GC-composition is in range.
+Function:
 
--    Length is within range.
-
--   verage quality is not lower than the threshold.
-
-Result: returns the same file format as input, but with
-by filtered ridges.
-
-### Usage
-
-```         
-python 
-
+```python
 filter_fastq(
-input_fastq, 
-output_fastq, 
-gc_bounds=(40, 60), 
-length_bounds=(100, 300),
-quality_threshold=30
-) 
+    input_fastq,
+    output_fastq,
+    gc_bounds=(0.0, 1.0),
+    length_bounds=(0, 2**32),
+    quality_threshold=0.0
+)
 ```
 
-## Function convert_multiline_fasta_to_oneline
+Filtering criteria:
 
-Translation of genetic sequences recorded in the fasta-file in multi-line format to single-line format.
+- GC fraction (0–1)
 
-**input_fasta** — fasta-file sent to input.
+- read length
 
-**output_fasta** — Final fasta-file.
+- mean Phred quality score
 
-Result: returns fasta-file with same genetic
-sequences, but written in a straight line.
+Implementation details:
 
-## Docstrings and documentation
+- Bio.SeqIO for reading/writing FASTQ
 
-All modules and scripts contain detailed annotations and documentation for
-each function describing input and output, as well as the logic. It is recommended to use the source code of the modules to get
-additional information on the implementation of each procedure.
+- SeqRecord
 
+- Bio.SeqUtils.gc_fraction
+
+- record.letter_annotations["phred_quality"]
+
+- supports .fastq and .fastq.gz
+
+The function:
+
+- writes output into a filtered/ subdirectory
+
+- returns a summary dictionary with statistics.
+
+---
+
+## Examle Usage
+
+```
+from main import DNASequence, filter_fastq
+
+dna = DNASequence("ATGC")
+print(dna.reverse_complement())
+print(dna.transcribe())
+
+summary = filter_fastq(
+    "input.fastq.gz",
+    "output.fastq",
+    gc_bounds=(0.35, 0.65),
+    length_bounds=(50, 300),
+    quality_threshold=30
+)
+
+print(summary)
+```
